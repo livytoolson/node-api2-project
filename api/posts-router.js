@@ -74,7 +74,8 @@ router.get('/:id/comments', (req, res) => {
 })
 
 router.delete('/:id', (req, res) => {
-    Post.remove(req.params.id)
+    const { id } = req.params
+    Post.remove(id)
         .then(count => {
             if (count > 0) {
                 res.status(200).json({ message: "Post has successfully been deleted." })
@@ -89,17 +90,22 @@ router.delete('/:id', (req, res) => {
 })
 
 router.put('/:id', (req, res) => {
-    if (!req.body.title || !req.body.contents) {
+    const changes = req.body
+    const { id } = req.params
+    const updatedPostFromClient = req.body
+    if (!updatedPostFromClient.title || !updatedPostFromClient.contents) {
         res.status(400).json({ errorMessage: "Please provide title and contents for the post." })
     }
-    const changes = req.body
-    Post.update(req.params.id, changes)
+    Post.update(id, changes)
+    .then(updatedPostFromClient => {
+        if (updatedPostFromClient > 0) {
+            return Post.findById(id)
+        } else {
+            res.status(404).json({ message: "The post with the specified ID does not exist." })
+        }
+    })
     .then(post => {
-       if (post) {
-           res.status(200).json(post)
-       } else {
-           res.status(404).json({ message: "The post with the specified ID does not exist." })
-       }
+        res.json(post)
     })
     .catch(error => {
         console.log(error)
