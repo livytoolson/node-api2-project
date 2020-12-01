@@ -1,11 +1,5 @@
-const express = require('express');
-const cors = require('cors');
-
-const server = express();
-
-server.use(express.json());
-server.use(cors());
+const server = require('./api/server');
 
 server.listen(5000, () => {
-    console.log('listening on port 5000')
-})
+    console.log('Server Running on http://localhost:5000')
+});
